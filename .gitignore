@@ -1,0 +1,4 @@
+node_modules/
+data/sbs.db
+.env
+.DS_Store

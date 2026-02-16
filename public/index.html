@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>รายงานผลการดำเนินงาน คณะทำงานย่อย สบส. ที่ 9/2569</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--navy-900:#0A1628;--navy-800:#0F1F3A;--navy-700:#152A4A;--gold:#C8A24D;--gold-light:#DBBF6E;--gold-glow:rgba(200,162,77,.15);--gold-border:rgba(200,162,77,.25);--text-primary:#EDE9E0;--text-secondary:rgba(237,233,224,.55);--text-muted:rgba(237,233,224,.35);--complete:#34D399;--complete-soft:rgba(52,211,153,.12);--progress:#FBBF24;--progress-soft:rgba(251,191,36,.12);--delayed:#F87171;--delayed-soft:rgba(248,113,113,.12);--not-started:#94A3B8;--not-started-soft:rgba(148,163,184,.1);--card-bg:rgba(15,31,58,.65);--card-border:rgba(200,162,77,.12);--card-hover-border:rgba(200,162,77,.35);--radius:14px;--transition:.3s cubic-bezier(.4,0,.2,1)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Sarabun','Noto Sans Thai',sans-serif;background:var(--navy-900);color:var(--text-primary);min-height:100vh;line-height:1.6}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 10% 0%,rgba(200,162,77,.05) 0%,transparent 50%),radial-gradient(ellipse 50% 40% at 90% 100%,rgba(52,211,153,.03) 0%,transparent 50%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(200,162,77,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(200,162,77,.02) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:1360px;margin:0 auto;padding:0 32px}
+.header{position:relative;z-index:2;background:linear-gradient(180deg,var(--navy-800) 0%,rgba(15,31,58,.5) 100%);border-bottom:1px solid var(--card-border)}
+.header-inner{max-width:1360px;margin:0 auto;padding:28px 32px}
+.header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.header-brand{display:flex;align-items:center;gap:16px}
+.emblem{width:54px;height:54px;border-radius:50%;background:linear-gradient(145deg,var(--gold) 0%,#A8872E 100%);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(200,162,77,.25),inset 0 1px 0 rgba(255,255,255,.2);position:relative}
+.emblem::after{content:'';position:absolute;inset:3px;border-radius:50%;border:1.5px solid rgba(255,255,255,.25)}
+.emblem svg{width:28px;height:28px;fill:var(--navy-900)}
+.org-info{font-size:12.5px;color:var(--text-secondary);letter-spacing:.5px}
+.org-info strong{display:block;font-size:16px;color:var(--gold-light);font-weight:600;margin-top:2px}
+.header-meta{text-align:right;font-size:12.5px;color:var(--text-secondary)}
+.header-meta strong{display:block;font-size:13.5px;color:var(--text-primary);font-weight:500;margin-top:2px}
+.live-dot{display:inline-block;width:7px;height:7px;background:var(--complete);border-radius:50%;margin-right:5px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(52,211,153,.4)}50%{opacity:.7;box-shadow:0 0 0 6px rgba(52,211,153,0)}}
+.header-title-row{display:flex;align-items:flex-end;justify-content:space-between;gap:20px}
+.header-title{font-family:'Noto Sans Thai',sans-serif;font-size:26px;font-weight:700;letter-spacing:-.3px;line-height:1.3}
+.header-subtitle{font-size:14px;color:var(--text-secondary);font-weight:300;margin-top:4px}
+.header-order{padding:7px 18px;border-radius:100px;border:1px solid var(--gold-border);background:var(--gold-glow);color:var(--gold-light);font-size:13px;font-weight:600;white-space:nowrap;flex-shrink:0}
+.summary-section{padding:28px 0 8px}
+.summary-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.s-card{background:var(--card-bg);backdrop-filter:blur(16px);border:1px solid var(--card-border);border-radius:12px;padding:20px;position:relative;overflow:hidden;transition:transform var(--transition),box-shadow var(--transition)}
+.s-card:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,.2)}
+.s-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2.5px}
+.s-card.s-total::before{background:linear-gradient(90deg,var(--gold),var(--gold-light))}
+.s-card.s-complete::before{background:var(--complete)}.s-card.s-progress::before{background:var(--progress)}.s-card.s-delayed::before{background:var(--delayed)}.s-card.s-not-started::before{background:var(--not-started)}
+.s-label{font-size:12.5px;color:var(--text-secondary);margin-bottom:6px}.s-value{font-size:34px;font-weight:800;line-height:1}
+.s-card.s-total .s-value{color:var(--gold)}.s-card.s-complete .s-value{color:var(--complete)}.s-card.s-progress .s-value{color:var(--progress)}.s-card.s-delayed .s-value{color:var(--delayed)}.s-card.s-not-started .s-value{color:var(--not-started)}
+.s-unit{font-size:12px;color:var(--text-muted);margin-top:5px}
+.overall-progress{margin:24px 0 32px;background:var(--card-bg);border:1px solid var(--card-border);border-radius:12px;padding:20px 24px}
+.overall-label{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.overall-label span{font-size:13px;color:var(--text-secondary)}.overall-label strong{font-size:20px;color:var(--gold);font-weight:700}
+.overall-track{width:100%;height:10px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden;display:flex}
+.overall-seg{height:100%;transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.seg-complete{background:var(--complete);border-radius:100px 0 0 100px}.seg-progress{background:var(--progress)}.seg-delayed{background:var(--delayed)}.seg-not-started{background:rgba(148,163,184,.25);border-radius:0 100px 100px 0}
+.overall-legend{display:flex;gap:20px;margin-top:12px;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)}.legend-dot{width:8px;height:8px;border-radius:50%}
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px;flex-wrap:wrap}
+.filter-label{font-size:13px;color:var(--text-secondary);font-weight:500;margin-right:4px}
+.f-btn{padding:7px 18px;border-radius:100px;border:1px solid var(--card-border);background:transparent;color:var(--text-secondary);font-family:inherit;font-size:13px;cursor:pointer;transition:all .2s}
+.f-btn:hover{border-color:var(--gold-border);color:var(--gold-light)}.f-btn.active{background:var(--gold);color:var(--navy-900);border-color:var(--gold);font-weight:600}
+.cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.c-card{background:var(--card-bg);backdrop-filter:blur(16px);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;transition:all var(--transition);cursor:pointer;opacity:0;transform:translateY(18px);animation:cardIn .5s ease forwards}
+@keyframes cardIn{to{opacity:1;transform:translateY(0)}}
+.c-card:nth-child(1){animation-delay:.04s}.c-card:nth-child(2){animation-delay:.08s}.c-card:nth-child(3){animation-delay:.12s}.c-card:nth-child(4){animation-delay:.16s}.c-card:nth-child(5){animation-delay:.2s}.c-card:nth-child(6){animation-delay:.24s}.c-card:nth-child(7){animation-delay:.28s}.c-card:nth-child(8){animation-delay:.32s}.c-card:nth-child(9){animation-delay:.36s}.c-card:nth-child(10){animation-delay:.4s}
+.c-card:hover{border-color:var(--card-hover-border);background:rgba(21,42,74,.7);box-shadow:0 10px 40px rgba(0,0,0,.2);transform:translateY(-2px)}
+.c-card.hidden{display:none}
+.c-head{display:flex;align-items:flex-start;padding:22px 22px 0;gap:14px}
+.c-num{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}
+.st-complete .c-num{background:var(--complete-soft);color:var(--complete)}.st-progress .c-num{background:var(--progress-soft);color:var(--progress)}.st-delayed .c-num{background:var(--delayed-soft);color:var(--delayed)}.st-not-started .c-num{background:var(--not-started-soft);color:var(--not-started)}
+.c-info{flex:1;min-width:0}
+.c-title{font-size:15px;font-weight:600;line-height:1.45}
+.c-appendix{display:inline-block;margin-top:4px;font-size:11.5px;color:var(--gold);font-weight:600;padding:2px 10px;background:var(--gold-glow);border-radius:100px}
+.c-badge{padding:5px 14px;border-radius:100px;font-size:12px;font-weight:600;white-space:nowrap;flex-shrink:0;align-self:flex-start}
+.st-complete .c-badge{background:var(--complete-soft);color:var(--complete)}.st-progress .c-badge{background:var(--progress-soft);color:var(--progress)}.st-delayed .c-badge{background:var(--delayed-soft);color:var(--delayed)}.st-not-started .c-badge{background:var(--not-started-soft);color:var(--not-started)}
+.c-progress{padding:16px 22px 0}
+.c-prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px}
+.c-prog-label{font-size:12px;color:var(--text-muted)}.c-prog-pct{font-size:15px;font-weight:700}
+.st-complete .c-prog-pct{color:var(--complete)}.st-progress .c-prog-pct{color:var(--progress)}.st-delayed .c-prog-pct{color:var(--delayed)}.st-not-started .c-prog-pct{color:var(--not-started)}
+.c-track{width:100%;height:5px;background:rgba(255,255,255,.06);border-radius:100px;overflow:hidden}
+.c-fill{height:100%;border-radius:100px;width:0;transition:width 1.2s cubic-bezier(.4,0,.2,1)}
+.st-complete .c-fill{background:linear-gradient(90deg,#2DD4BF,var(--complete))}.st-progress .c-fill{background:linear-gradient(90deg,#F59E0B,var(--progress))}.st-delayed .c-fill{background:linear-gradient(90deg,#EF4444,var(--delayed))}.st-not-started .c-fill{background:var(--not-started)}
+.c-timeline{display:flex;align-items:center;gap:18px;padding:14px 22px;font-size:12px;color:var(--text-secondary)}
+.c-time-item{display:flex;align-items:center;gap:5px}
+.c-time-item svg{width:13px;height:13px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.c-expand-icon{margin-left:auto;width:20px;height:20px;display:flex;align-items:center;justify-content:center;transition:transform .3s}
+.c-expand-icon svg{width:14px;height:14px;stroke:var(--text-muted);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.c-card.expanded .c-expand-icon{transform:rotate(180deg)}
+.c-detail{max-height:0;overflow:hidden;transition:max-height .45s cubic-bezier(.4,0,.2,1)}
+.c-card.expanded .c-detail{max-height:500px}
+.c-detail-inner{padding:0 22px 22px;border-top:1px solid var(--card-border);margin-top:2px;padding-top:16px}
+.c-detail-title{font-size:12px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.task-list{list-style:none;display:flex;flex-direction:column;gap:8px}
+.task-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text-secondary);line-height:1.5}
+.task-check{width:18px;height:18px;border-radius:5px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.task-check.done{background:var(--complete-soft)}.task-check.done svg{stroke:var(--complete)}
+.task-check.pending{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1)}.task-check.pending svg{stroke:var(--text-muted)}
+.task-check svg{width:11px;height:11px;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.c-detail-notes{margin-top:14px;padding:12px 14px;background:rgba(200,162,77,.06);border-radius:8px;border-left:3px solid var(--gold);font-size:12.5px;color:var(--text-secondary);line-height:1.6}
+.c-updated{font-size:11px;color:var(--text-muted);margin-top:10px;text-align:right}
+.footer{position:relative;z-index:1;margin-top:48px;padding:24px 0;border-top:1px solid var(--card-border);text-align:center;font-size:12px;color:var(--text-muted)}
+.loading{text-align:center;padding:60px 0;color:var(--text-secondary);font-size:15px}
+.loading .spin{display:inline-block;width:24px;height:24px;border:3px solid var(--card-border);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;margin-right:10px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:1024px){.summary-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:860px){.cards-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}.header-title{font-size:22px}.header-top{flex-direction:column;align-items:flex-start;gap:12px}.header-meta{text-align:left}.header-title-row{flex-direction:column;align-items:flex-start}.container{padding:0 16px}.header-inner{padding:20px 16px}}
+@media(max-width:480px){.summary-grid{grid-template-columns:1fr 1fr}.s-card:last-child{grid-column:span 2}.c-timeline{flex-wrap:wrap;gap:10px}}
+@media print{body{background:#fff;color:#1a1a1a}body::before,body::after{display:none}.filter-bar{display:none}.c-card{break-inside:avoid;border:1px solid #ddd}.c-detail{max-height:none!important}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="header-brand">
+        <div class="emblem"><svg viewBox="0 0 24 24"><path d="M12 2L3.5 7v10L12 22l8.5-5V7L12 2zm0 2.16L18.5 8v8L12 19.84 5.5 16V8L12 4.16z"/><path d="M12 8v8M8 10v4M16 10v4"/></svg></div>
+        <div class="org-info">สำนักงานตำรวจแห่งชาติ<strong>สำนักงานคณะกรรมการข้าราชการตำรวจ (สบส.)</strong></div>
+      </div>
+      <div class="header-meta"><span><span class="live-dot"></span>ข้อมูลล่าสุด</span><strong id="currentDate"></strong></div>
+    </div>
+    <div class="header-title-row">
+      <div><h1 class="header-title">รายงานผลการดำเนินงานคณะทำงานย่อย</h1><p class="header-subtitle">ติดตามความก้าวหน้าการดำเนินงานของคณะทำงานย่อยทั้ง 10 คณะ</p></div>
+      <div class="header-order">คำสั่ง สบส. ที่ 9/2569</div>
+    </div>
+  </div>
+</header>
+<div class="container">
+  <section class="summary-section">
+    <div class="summary-grid">
+      <div class="s-card s-total"><div class="s-label">คณะทำงานทั้งหมด</div><div class="s-value" id="cntAll">—</div><div class="s-unit">คณะ</div></div>
+      <div class="s-card s-complete"><div class="s-label">ดำเนินการเสร็จสิ้น</div><div class="s-value" id="cntDone">—</div><div class="s-unit">คณะ</div></div>
+      <div class="s-card s-progress"><div class="s-label">กำลังดำเนินการ</div><div class="s-value" id="cntProg">—</div><div class="s-unit">คณะ</div></div>
+      <div class="s-card s-delayed"><div class="s-label">ล่าช้ากว่ากำหนด</div><div class="s-value" id="cntDel">—</div><div class="s-unit">คณะ</div></div>
+      <div class="s-card s-not-started"><div class="s-label">ยังไม่เริ่ม</div><div class="s-value" id="cntNs">—</div><div class="s-unit">คณะ</div></div>
+    </div>
+  </section>
+  <div class="overall-progress">
+    <div class="overall-label"><span>ความก้าวหน้ารวมทุกคณะ</span><strong id="overallPct">—</strong></div>
+    <div class="overall-track">
+      <div class="overall-seg seg-complete" id="segDone" style="width:0"></div>
+      <div class="overall-seg seg-progress" id="segProg" style="width:0"></div>
+      <div class="overall-seg seg-delayed" id="segDel" style="width:0"></div>
+      <div class="overall-seg seg-not-started" id="segNs" style="width:0"></div>
+    </div>
+    <div class="overall-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--complete)"></div>เสร็จสิ้น</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--progress)"></div>กำลังดำเนินการ</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--delayed)"></div>ล่าช้า</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--not-started)"></div>ยังไม่เริ่ม</div>
+    </div>
+  </div>
+  <div class="filter-bar">
+    <span class="filter-label">กรองสถานะ :</span>
+    <button class="f-btn active" onclick="filterCards('all',this)">ทั้งหมด</button>
+    <button class="f-btn" onclick="filterCards('complete',this)">เสร็จสิ้น</button>
+    <button class="f-btn" onclick="filterCards('progress',this)">กำลังดำเนินการ</button>
+    <button class="f-btn" onclick="filterCards('delayed',this)">ล่าช้า</button>
+    <button class="f-btn" onclick="filterCards('not-started',this)">ยังไม่เริ่ม</button>
+  </div>
+  <div class="cards-grid" id="cardsGrid"><div class="loading"><span class="spin"></span>กำลังโหลดข้อมูล...</div></div>
+  <footer class="footer">รายงานผลการดำเนินงานคณะทำงานย่อย ตามคำสั่ง สบส. ที่ 9/2569 · สำนักงานคณะกรรมการข้าราชการตำรวจ</footer>
+</div>
+<script>
+const STATUS_TEXT={complete:'เสร็จสิ้น',progress:'กำลังดำเนินการ',delayed:'ล่าช้า','not-started':'ยังไม่เริ่ม'};
+const icons={
+  calendar:'<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+  clock:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
+  chevron:'<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>',
+  check:'<svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 6"/></svg>',
+  minus:'<svg viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></svg>'
+};
+let allData=[];
+
+async function loadData(){
+  try{
+    const res=await fetch('/api/committees');
+    allData=await res.json();
+    renderAll();
+  }catch(e){console.error(e);document.getElementById('cardsGrid').innerHTML='<div class="loading" style="color:var(--delayed)">ไม่สามารถโหลดข้อมูลได้</div>'}
+}
+
+function renderAll(){
+  renderSummary();
+  renderCards();
+}
+
+function renderSummary(){
+  const counts={complete:0,progress:0,delayed:0,'not-started':0};
+  allData.forEach(c=>counts[c.status]=(counts[c.status]||0)+1);
+  const total=allData.length;
+  const avg=total?Math.round(allData.reduce((s,c)=>s+c.percent,0)/total):0;
+  document.getElementById('cntAll').textContent=total;
+  document.getElementById('cntDone').textContent=counts.complete;
+  document.getElementById('cntProg').textContent=counts.progress;
+  document.getElementById('cntDel').textContent=counts.delayed;
+  document.getElementById('cntNs').textContent=counts['not-started'];
+  document.getElementById('overallPct').textContent=avg+'%';
+  setTimeout(()=>{
+    document.getElementById('segDone').style.width=(counts.complete/total*100)+'%';
+    document.getElementById('segProg').style.width=(counts.progress/total*100)+'%';
+    document.getElementById('segDel').style.width=(counts.delayed/total*100)+'%';
+    document.getElementById('segNs').style.width=(counts['not-started']/total*100)+'%';
+  },200);
+}
+
+function renderCards(){
+  const grid=document.getElementById('cardsGrid');
+  grid.innerHTML=allData.map(c=>`
+    <div class="c-card st-${c.status}" data-status="${c.status}" onclick="this.classList.toggle('expanded')">
+      <div class="c-head">
+        <div class="c-num">${c.id}</div>
+        <div class="c-info"><div class="c-title">${c.title}</div><span class="c-appendix">${c.appendix}</span></div>
+        <div class="c-badge">${STATUS_TEXT[c.status]||c.status}</div>
+      </div>
+      <div class="c-progress">
+        <div class="c-prog-head"><span class="c-prog-label">ความก้าวหน้า</span><span class="c-prog-pct">${c.percent}%</span></div>
+        <div class="c-track"><div class="c-fill" data-width="${c.percent}"></div></div>
+      </div>
+      <div class="c-timeline">
+        <div class="c-time-item">${icons.calendar}<span>เริ่ม: ${c.start_date}</span></div>
+        <div class="c-time-item">${icons.clock}<span>สิ้นสุด: ${c.end_date}</span></div>
+        <div class="c-expand-icon">${icons.chevron}</div>
+      </div>
+      <div class="c-detail"><div class="c-detail-inner">
+        <div class="c-detail-title">รายการดำเนินงาน</div>
+        <ul class="task-list">${(c.tasks||[]).map(t=>`
+          <li class="task-item"><div class="task-check ${t.done?'done':'pending'}">${t.done?icons.check:icons.minus}</div><span>${t.text}</span></li>`).join('')}
+        </ul>
+        <div class="c-detail-notes">${c.notes||''}</div>
+        ${c.updated_at?`<div class="c-updated">อัปเดตล่าสุด: ${c.updated_at}</div>`:''}
+      </div></div>
+    </div>`).join('');
+  requestAnimationFrame(()=>setTimeout(()=>{document.querySelectorAll('.c-fill').forEach(el=>{el.style.width=el.dataset.width+'%'})},300));
+}
+
+function filterCards(status,btn){
+  document.querySelectorAll('.f-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.c-card').forEach(card=>{card.classList.toggle('hidden',status!=='all'&&card.dataset.status!==status)});
+}
+
+(function setDate(){
+  const m=['มกราคม','กุมภาพันธ์','มีนาคม','เมษายน','พฤษภาคม','มิถุนายน','กรกฎาคม','สิงหาคม','กันยายน','ตุลาคม','พฤศจิกายน','ธันวาคม'];
+  const d=new Date();document.getElementById('currentDate').textContent=`${d.getDate()} ${m[d.getMonth()]} ${d.getFullYear()+543}`;
+})();
+
+loadData();
+</script>
+</body>
+</html>

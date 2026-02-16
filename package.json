@@ -1,0 +1,17 @@
+{
+  "name": "sbs-report",
+  "version": "1.0.0",
+  "description": "ระบบรายงานผลการดำเนินงานคณะทำงานย่อย สบส. ที่ 9/2569",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^11.7.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

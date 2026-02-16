@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — ระบบรายงาน สบส.</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0B1524;--surface:#111D32;--surface2:#162640;--border:#1E3454;--border-focus:#C8A24D;--gold:#C8A24D;--gold-light:#DBBF6E;--gold-glow:rgba(200,162,77,.12);--text:#EDE9E0;--text2:rgba(237,233,224,.6);--text3:rgba(237,233,224,.35);--complete:#34D399;--progress:#FBBF24;--delayed:#F87171;--not-started:#94A3B8;--danger:#EF4444;--radius:10px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Sarabun','Noto Sans Thai',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+
+/* LOGIN */
+.login-overlay{position:fixed;inset:0;background:var(--bg);z-index:1000;display:flex;align-items:center;justify-content:center}
+.login-overlay.hidden{display:none}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px;width:380px;max-width:90vw;text-align:center}
+.login-box h2{font-size:20px;margin-bottom:6px;color:var(--gold)}
+.login-box p{font-size:13px;color:var(--text2);margin-bottom:28px}
+.login-box input{width:100%;padding:12px 16px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:8px;font-family:inherit;font-size:14px;margin-bottom:12px;outline:none;transition:border-color .2s}
+.login-box input:focus{border-color:var(--gold)}
+.login-box input::placeholder{color:var(--text3)}
+.login-box .login-btn{width:100%;padding:12px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;margin-top:4px;transition:opacity .2s}
+.login-box .login-btn:hover{opacity:.9}
+.login-error{color:var(--danger);font-size:13px;margin-top:10px;min-height:20px}
+
+/* NAV */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.topbar-left{display:flex;align-items:center;gap:12px}
+.topbar-left .dot{width:10px;height:10px;border-radius:50%;background:var(--gold)}
+.topbar-left h1{font-size:16px;font-weight:600}
+.topbar-left h1 span{color:var(--text2);font-weight:400;font-size:13px;margin-left:8px}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-right a,.topbar-right button{padding:7px 16px;border-radius:8px;font-family:inherit;font-size:13px;text-decoration:none;border:1px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s}
+.topbar-right a:hover,.topbar-right button:hover{border-color:var(--gold);color:var(--gold)}
+.topbar-right .logout-btn{color:var(--delayed);border-color:rgba(248,113,113,.3)}
+.topbar-right .logout-btn:hover{border-color:var(--delayed);background:rgba(248,113,113,.08)}
+
+/* LAYOUT */
+.main{max-width:1100px;margin:0 auto;padding:32px}
+
+/* COMMITTEE LIST */
+.c-list{display:flex;flex-direction:column;gap:12px}
+.c-row{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 22px;display:flex;align-items:center;gap:16px;cursor:pointer;transition:all .2s}
+.c-row:hover{border-color:var(--border-focus);background:var(--surface2)}
+.c-row .num{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.c-row.st-complete .num{background:rgba(52,211,153,.12);color:var(--complete)}
+.c-row.st-progress .num{background:rgba(251,191,36,.12);color:var(--progress)}
+.c-row.st-delayed .num{background:rgba(248,113,113,.12);color:var(--delayed)}
+.c-row.st-not-started .num{background:rgba(148,163,184,.1);color:var(--not-started)}
+.c-row .info{flex:1;min-width:0}
+.c-row .info .name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.c-row .info .meta{font-size:12px;color:var(--text2);margin-top:2px}
+.c-row .pct{font-size:15px;font-weight:700;width:50px;text-align:right}
+.c-row.st-complete .pct{color:var(--complete)}.c-row.st-progress .pct{color:var(--progress)}.c-row.st-delayed .pct{color:var(--delayed)}.c-row.st-not-started .pct{color:var(--not-started)}
+.c-row .arrow{color:var(--text3);font-size:18px}
+
+/* EDIT PANEL */
+.edit-panel{display:none}
+.edit-panel.active{display:block}
+.back-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid var(--border);background:transparent;color:var(--text2);border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;margin-bottom:24px;transition:all .2s}
+.back-btn:hover{border-color:var(--gold);color:var(--gold)}
+.edit-title{font-size:20px;font-weight:700;margin-bottom:6px}
+.edit-appendix{display:inline-block;padding:3px 12px;background:var(--gold-glow);color:var(--gold);font-size:12px;font-weight:600;border-radius:100px;margin-bottom:24px}
+
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:20px}
+.form-section h3{font-size:14px;font-weight:600;color:var(--gold);margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.form-row.full{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:12px;color:var(--text2);font-weight:500}
+.form-group input,.form-group select,.form-group textarea{padding:10px 14px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:8px;font-family:inherit;font-size:14px;outline:none;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold)}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-group select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(237,233,224,.4)' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+
+/* TASKS */
+.task-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(30,52,84,.5)}
+.task-row:last-child{border-bottom:none}
+.task-row input[type=checkbox]{width:18px;height:18px;accent-color:var(--complete);cursor:pointer;flex-shrink:0}
+.task-row input[type=text]{flex:1;padding:8px 12px;border:1px solid var(--border);background:var(--surface2);color:var(--text);border-radius:6px;font-family:inherit;font-size:13px;outline:none}
+.task-row input[type=text]:focus{border-color:var(--gold)}
+.task-row .del-task{width:28px;height:28px;border:none;background:rgba(239,68,68,.1);color:var(--danger);border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.task-row .del-task:hover{background:rgba(239,68,68,.2)}
+.add-task-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px dashed var(--border);background:transparent;color:var(--text2);border-radius:8px;font-family:inherit;font-size:13px;cursor:pointer;margin-top:12px;transition:all .2s}
+.add-task-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ACTIONS */
+.form-actions{display:flex;gap:12px;margin-top:8px}
+.save-btn{padding:12px 32px;background:var(--gold);color:var(--bg);border:none;border-radius:8px;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:opacity .2s}
+.save-btn:hover{opacity:.9}
+.save-btn:disabled{opacity:.5;cursor:not-allowed}
+.cancel-btn{padding:12px 24px;background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;cursor:pointer;transition:all .2s}
+.cancel-btn:hover{border-color:var(--gold);color:var(--gold)}
+.save-msg{font-size:13px;margin-top:12px;min-height:20px}
+.save-msg.ok{color:var(--complete)}.save-msg.err{color:var(--danger)}
+
+.toast{position:fixed;bottom:24px;right:24px;padding:14px 24px;background:var(--surface);border:1px solid var(--complete);color:var(--complete);border-radius:10px;font-size:14px;font-weight:500;z-index:999;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.4,0,.2,1)}
+.toast.show{transform:translateY(0);opacity:1}
+
+@media(max-width:700px){.main{padding:16px}.form-row{grid-template-columns:1fr}.topbar{padding:12px 16px}.c-row .info .name{white-space:normal}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>ระบบจัดการรายงาน</h2>
+    <p>สบส. — เข้าสู่ระบบเพื่อแก้ไขข้อมูล</p>
+    <input type="text" id="loginUser" placeholder="ชื่อผู้ใช้" autocomplete="username">
+    <input type="password" id="loginPass" placeholder="รหัสผ่าน" autocomplete="current-password">
+    <button class="login-btn" onclick="doLogin()">เข้าสู่ระบบ</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar" id="topbar" style="display:none">
+  <div class="topbar-left">
+    <div class="dot"></div>
+    <h1>Admin Panel <span>ระบบรายงาน สบส.</span></h1>
+  </div>
+  <div class="topbar-right">
+    <a href="/" target="_blank">ดูหน้ารายงาน →</a>
+    <button class="logout-btn" onclick="doLogout()">ออกจากระบบ</button>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main" id="mainContent" style="display:none">
+
+  <!-- LIST VIEW -->
+  <div id="listView">
+    <h2 style="font-size:18px;margin-bottom:20px;color:var(--text2);font-weight:400">เลือกคณะทำงานที่ต้องการแก้ไข</h2>
+    <div class="c-list" id="committeeList"></div>
+  </div>
+
+  <!-- EDIT VIEW -->
+  <div class="edit-panel" id="editPanel">
+    <button class="back-btn" onclick="showList()">← กลับ</button>
+    <div class="edit-title" id="editTitle"></div>
+    <div class="edit-appendix" id="editAppendix"></div>
+
+    <div class="form-section">
+      <h3>ข้อมูลทั่วไป</h3>
+      <div class="form-row">
+        <div class="form-group">
+          <label>สถานะ</label>
+          <select id="fStatus">
+            <option value="complete">เสร็จสิ้น</option>
+            <option value="progress">กำลังดำเนินการ</option>
+            <option value="delayed">ล่าช้า</option>
+            <option value="not-started">ยังไม่เริ่ม</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>ความก้าวหน้า (%)</label>
+          <input type="number" id="fPercent" min="0" max="100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>วันที่เริ่ม</label>
+          <input type="text" id="fStart" placeholder="เช่น ม.ค. 2569">
+        </div>
+        <div class="form-group">
+          <label>วันที่สิ้นสุด</label>
+          <input type="text" id="fEnd" placeholder="เช่น มิ.ย. 2569">
+        </div>
+      </div>
+      <div class="form-row full">
+        <div class="form-group">
+          <label>หมายเหตุ / บันทึกเพิ่มเติม</label>
+          <textarea id="fNotes" rows="3"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <h3>รายการงาน (Tasks)</h3>
+      <div id="tasksList"></div>
+      <button class="add-task-btn" onclick="addTask()">+ เพิ่มรายการ</button>
+    </div>
+
+    <div class="form-actions">
+      <button class="save-btn" id="saveBtn" onclick="saveCommittee()">บันทึกข้อมูล</button>
+      <button class="cancel-btn" onclick="showList()">ยกเลิก</button>
+    </div>
+    <div class="save-msg" id="saveMsg"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let authToken='';
+let allData=[];
+let editingId=null;
+
+// --- AUTH ---
+function doLogin(){
+  const user=document.getElementById('loginUser').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!user||!pass)return;
+  fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:user,password:pass})})
+    .then(r=>r.json()).then(d=>{
+      if(d.ok){authToken=btoa(user+':'+pass);document.getElementById('loginOverlay').classList.add('hidden');document.getElementById('topbar').style.display='flex';document.getElementById('mainContent').style.display='block';loadList()}
+      else{document.getElementById('loginError').textContent=d.error||'เข้าสู่ระบบล้มเหลว'}
+    }).catch(()=>document.getElementById('loginError').textContent='ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+}
+
+document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+
+function doLogout(){authToken='';document.getElementById('loginOverlay').classList.remove('hidden');document.getElementById('topbar').style.display='none';document.getElementById('mainContent').style.display='none';document.getElementById('loginUser').value='';document.getElementById('loginPass').value='';document.getElementById('loginError').textContent=''}
+
+// --- LIST ---
+async function loadList(){
+  const res=await fetch('/api/committees');
+  allData=await res.json();
+  renderList();
+}
+
+function renderList(){
+  const el=document.getElementById('committeeList');
+  el.innerHTML=allData.map(c=>`
+    <div class="c-row st-${c.status}" onclick="editCommittee(${c.id})">
+      <div class="num">${c.id}</div>
+      <div class="info"><div class="name">${c.title}</div><div class="meta">${c.appendix} · ${c.start_date} – ${c.end_date}</div></div>
+      <div class="pct">${c.percent}%</div>
+      <div class="arrow">›</div>
+    </div>`).join('');
+}
+
+function showList(){document.getElementById('listView').style.display='block';document.getElementById('editPanel').classList.remove('active');loadList()}
+
+// --- EDIT ---
+function editCommittee(id){
+  editingId=id;
+  const c=allData.find(x=>x.id===id);
+  if(!c)return;
+  document.getElementById('listView').style.display='none';
+  document.getElementById('editPanel').classList.add('active');
+  document.getElementById('editTitle').textContent=`คณะที่ ${c.id}: ${c.title}`;
+  document.getElementById('editAppendix').textContent=c.appendix;
+  document.getElementById('fStatus').value=c.status;
+  document.getElementById('fPercent').value=c.percent;
+  document.getElementById('fStart').value=c.start_date||'';
+  document.getElementById('fEnd').value=c.end_date||'';
+  document.getElementById('fNotes').value=c.notes||'';
+  document.getElementById('saveMsg').textContent='';
+  renderTasks(c.tasks||[]);
+  window.scrollTo(0,0);
+}
+
+function renderTasks(tasks){
+  const el=document.getElementById('tasksList');
+  el.innerHTML=tasks.map((t,i)=>`
+    <div class="task-row">
+      <input type="checkbox" ${t.done?'checked':''} data-idx="${i}">
+      <input type="text" value="${escHtml(t.text)}" data-idx="${i}">
+      <button class="del-task" onclick="delTask(${i})" title="ลบ">×</button>
+    </div>`).join('');
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+
+function getTasks(){
+  const rows=document.querySelectorAll('#tasksList .task-row');
+  return Array.from(rows).map(r=>({text:r.querySelector('input[type=text]').value,done:r.querySelector('input[type=checkbox]').checked})).filter(t=>t.text.trim());
+}
+
+function addTask(){
+  const el=document.getElementById('tasksList');
+  const idx=el.children.length;
+  const div=document.createElement('div');div.className='task-row';
+  div.innerHTML=`<input type="checkbox" data-idx="${idx}"><input type="text" value="" placeholder="รายการใหม่..." data-idx="${idx}"><button class="del-task" onclick="this.parentElement.remove()" title="ลบ">×</button>`;
+  el.appendChild(div);
+  div.querySelector('input[type=text]').focus();
+}
+
+function delTask(idx){
+  const tasks=getTasks();
+  tasks.splice(idx,1);
+  renderTasks(tasks);
+}
+
+async function saveCommittee(){
+  const btn=document.getElementById('saveBtn');
+  const msg=document.getElementById('saveMsg');
+  btn.disabled=true;msg.textContent='กำลังบันทึก...';msg.className='save-msg';
+
+  const c=allData.find(x=>x.id===editingId);
+  const body={title:c.title,appendix:c.appendix,status:document.getElementById('fStatus').value,percent:parseInt(document.getElementById('fPercent').value)||0,start_date:document.getElementById('fStart').value,end_date:document.getElementById('fEnd').value,notes:document.getElementById('fNotes').value};
+  const tasks=getTasks();
+
+  try{
+    const h={'Content-Type':'application/json','Authorization':'Basic '+authToken};
+    const r1=await fetch(`/api/admin/committees/${editingId}`,{method:'PUT',headers:h,body:JSON.stringify(body)});
+    if(!r1.ok)throw new Error('Failed to update committee');
+    const r2=await fetch(`/api/admin/committees/${editingId}/tasks`,{method:'PUT',headers:h,body:JSON.stringify({tasks})});
+    if(!r2.ok)throw new Error('Failed to update tasks');
+    msg.textContent='✓ บันทึกสำเร็จ';msg.className='save-msg ok';
+    showToast('บันทึกข้อมูลคณะที่ '+editingId+' สำเร็จ');
+    await loadList();
+    const updated=allData.find(x=>x.id===editingId);
+    if(updated)renderTasks(updated.tasks||tasks.map(t=>({...t})));
+  }catch(e){msg.textContent='✗ เกิดข้อผิดพลาด: '+e.message;msg.className='save-msg err';}
+  finally{btn.disabled=false}
+}
+
+function showToast(text){
+  const t=document.getElementById('toast');t.textContent=text;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+</body>
+</html>
