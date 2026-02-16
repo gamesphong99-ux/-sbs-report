@@ -1,178 +1,175 @@
 const express = require('express');
-const Database = require('better-sqlite3');
+const initSqlJs = require('sql.js');
 const path = require('path');
 const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-// --- Database setup ---
 const DB_PATH = process.env.DB_PATH || path.join(__dirname, 'data', 'sbs.db');
-fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
-const db = new Database(DB_PATH);
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+let db;
 
-// Create tables
-db.exec(`
-  CREATE TABLE IF NOT EXISTS committees (
-    id INTEGER PRIMARY KEY,
-    title TEXT NOT NULL,
-    appendix TEXT,
-    status TEXT NOT NULL DEFAULT 'not-started',
-    percent INTEGER NOT NULL DEFAULT 0,
-    start_date TEXT,
-    end_date TEXT,
-    notes TEXT,
-    updated_at TEXT DEFAULT (datetime('now','localtime'))
-  );
-  CREATE TABLE IF NOT EXISTS tasks (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    committee_id INTEGER NOT NULL,
-    text TEXT NOT NULL,
-    done INTEGER NOT NULL DEFAULT 0,
-    sort_order INTEGER NOT NULL DEFAULT 0,
-    FOREIGN KEY (committee_id) REFERENCES committees(id) ON DELETE CASCADE
-  );
-  CREATE TABLE IF NOT EXISTS admin_users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
-  );
-`);
+async function initDB() {
+  const SQL = await initSqlJs();
+  fs.mkdirSync(path.dirname(DB_PATH), { recursive: true });
 
-// Seed data if empty
-const count = db.prepare('SELECT COUNT(*) as c FROM committees').get().c;
-if (count === 0) {
-  const seed = require('./data/seed');
-  const insertCommittee = db.prepare(`
-    INSERT INTO committees (id, title, appendix, status, percent, start_date, end_date, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  if (fs.existsSync(DB_PATH)) {
+    const buf = fs.readFileSync(DB_PATH);
+    db = new SQL.Database(buf);
+  } else {
+    db = new SQL.Database();
+  }
+
+  db.run(`
+    CREATE TABLE IF NOT EXISTS committees (
+      id INTEGER PRIMARY KEY,
+      title TEXT NOT NULL,
+      appendix TEXT,
+      status TEXT NOT NULL DEFAULT 'not-started',
+      percent INTEGER NOT NULL DEFAULT 0,
+      start_date TEXT,
+      end_date TEXT,
+      notes TEXT,
+      updated_at TEXT DEFAULT (datetime('now','localtime'))
+    )
   `);
-  const insertTask = db.prepare(`
-    INSERT INTO tasks (committee_id, text, done, sort_order) VALUES (?, ?, ?, ?)
+  db.run(`
+    CREATE TABLE IF NOT EXISTS tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      committee_id INTEGER NOT NULL,
+      text TEXT NOT NULL,
+      done INTEGER NOT NULL DEFAULT 0,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      FOREIGN KEY (committee_id) REFERENCES committees(id) ON DELETE CASCADE
+    )
   `);
-  const seedAll = db.transaction(() => {
+  db.run(`
+    CREATE TABLE IF NOT EXISTS admin_users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      username TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL
+    )
+  `);
+
+  const count = db.exec("SELECT COUNT(*) as c FROM committees")[0].values[0][0];
+  if (count === 0) {
+    const seed = require('./data/seed');
     for (const c of seed) {
-      insertCommittee.run(c.id, c.title, c.appendix, c.status, c.percent, c.start_date, c.end_date, c.notes);
-      c.tasks.forEach((t, i) => insertTask.run(c.id, t.text, t.done ? 1 : 0, i));
+      db.run("INSERT INTO committees (id,title,appendix,status,percent,start_date,end_date,notes) VALUES (?,?,?,?,?,?,?,?)",
+        [c.id, c.title, c.appendix, c.status, c.percent, c.start_date, c.end_date, c.notes]);
+      c.tasks.forEach((t, i) => {
+        db.run("INSERT INTO tasks (committee_id,text,done,sort_order) VALUES (?,?,?,?)", [c.id, t.text, t.done ? 1 : 0, i]);
+      });
     }
-  });
-  seedAll();
-  console.log('✅ Database seeded with 10 committees');
-
-  // Create default admin
-  const adminExists = db.prepare('SELECT COUNT(*) as c FROM admin_users').get().c;
-  if (adminExists === 0) {
-    db.prepare('INSERT INTO admin_users (username, password) VALUES (?, ?)').run('admin', 'sbs2569');
-    console.log('✅ Default admin created (admin / sbs2569)');
+    const adminCount = db.exec("SELECT COUNT(*) FROM admin_users")[0].values[0][0];
+    if (adminCount === 0) {
+      db.run("INSERT INTO admin_users (username,password) VALUES (?,?)", ['admin', 'sbs2569']);
+    }
+    saveDB();
+    console.log('Database seeded');
   }
 }
 
-// --- Middleware ---
+function saveDB() {
+  const data = db.export();
+  fs.writeFileSync(DB_PATH, Buffer.from(data));
+}
+
+function queryAll(sql, params) {
+  const stmt = db.prepare(sql);
+  if (params) stmt.bind(params);
+  const rows = [];
+  while (stmt.step()) rows.push(stmt.getAsObject());
+  stmt.free();
+  return rows;
+}
+
+function queryOne(sql, params) {
+  const rows = queryAll(sql, params);
+  return rows[0] || null;
+}
+
+function runSql(sql, params) {
+  db.run(sql, params);
+  saveDB();
+}
+
+// Middleware
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Simple auth middleware
 function requireAuth(req, res, next) {
   const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith('Basic ')) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
+  if (!auth || !auth.startsWith('Basic ')) return res.status(401).json({ error: 'Unauthorized' });
   const decoded = Buffer.from(auth.split(' ')[1], 'base64').toString();
   const [username, password] = decoded.split(':');
-  const user = db.prepare('SELECT * FROM admin_users WHERE username = ? AND password = ?').get(username, password);
+  const user = queryOne('SELECT * FROM admin_users WHERE username=? AND password=?', [username, password]);
   if (!user) return res.status(401).json({ error: 'Invalid credentials' });
   next();
 }
 
-// --- PUBLIC API ---
-
-// Get all committees with tasks
+// PUBLIC API
 app.get('/api/committees', (req, res) => {
-  const committees = db.prepare('SELECT * FROM committees ORDER BY id').all();
-  const taskStmt = db.prepare('SELECT * FROM tasks WHERE committee_id = ? ORDER BY sort_order');
+  const committees = queryAll('SELECT * FROM committees ORDER BY id');
   const result = committees.map(c => ({
     ...c,
-    tasks: taskStmt.all(c.id).map(t => ({ ...t, done: !!t.done }))
+    tasks: queryAll('SELECT * FROM tasks WHERE committee_id=? ORDER BY sort_order', [c.id]).map(t => ({ ...t, done: !!t.done }))
   }));
   res.json(result);
 });
 
-// Get single committee
 app.get('/api/committees/:id', (req, res) => {
-  const c = db.prepare('SELECT * FROM committees WHERE id = ?').get(req.params.id);
+  const c = queryOne('SELECT * FROM committees WHERE id=?', [+req.params.id]);
   if (!c) return res.status(404).json({ error: 'Not found' });
-  c.tasks = db.prepare('SELECT * FROM tasks WHERE committee_id = ? ORDER BY sort_order').all(c.id)
-    .map(t => ({ ...t, done: !!t.done }));
+  c.tasks = queryAll('SELECT * FROM tasks WHERE committee_id=? ORDER BY sort_order', [c.id]).map(t => ({ ...t, done: !!t.done }));
   res.json(c);
 });
 
-// Get summary stats
 app.get('/api/summary', (req, res) => {
-  const stats = db.prepare(`
-    SELECT status, COUNT(*) as count FROM committees GROUP BY status
-  `).all();
-  const avg = db.prepare('SELECT ROUND(AVG(percent)) as avg_percent FROM committees').get();
-  res.json({ stats, avg_percent: avg.avg_percent || 0, total: 10 });
+  const stats = queryAll('SELECT status, COUNT(*) as count FROM committees GROUP BY status');
+  const avg = queryOne('SELECT ROUND(AVG(percent)) as avg_percent FROM committees');
+  res.json({ stats, avg_percent: avg ? avg.avg_percent : 0, total: 10 });
 });
 
-// --- ADMIN API (requires auth) ---
-
-// Login check
+// AUTH
 app.post('/api/auth/login', (req, res) => {
   const { username, password } = req.body;
-  const user = db.prepare('SELECT id, username FROM admin_users WHERE username = ? AND password = ?').get(username, password);
+  const user = queryOne('SELECT id,username FROM admin_users WHERE username=? AND password=?', [username, password]);
   if (!user) return res.status(401).json({ error: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง' });
   res.json({ ok: true, user });
 });
 
-// Update committee
+// ADMIN API
 app.put('/api/admin/committees/:id', requireAuth, (req, res) => {
   const { title, appendix, status, percent, start_date, end_date, notes } = req.body;
-  const stmt = db.prepare(`
-    UPDATE committees
-    SET title = ?, appendix = ?, status = ?, percent = ?, start_date = ?, end_date = ?, notes = ?,
-        updated_at = datetime('now','localtime')
-    WHERE id = ?
-  `);
-  stmt.run(title, appendix, status, percent, start_date, end_date, notes, req.params.id);
+  runSql("UPDATE committees SET title=?,appendix=?,status=?,percent=?,start_date=?,end_date=?,notes=?,updated_at=datetime('now','localtime') WHERE id=?",
+    [title, appendix, status, percent, start_date, end_date, notes, +req.params.id]);
   res.json({ ok: true });
 });
 
-// Update tasks for a committee
 app.put('/api/admin/committees/:id/tasks', requireAuth, (req, res) => {
-  const { tasks } = req.body; // [{text, done}, ...]
-  const cid = req.params.id;
-  const updateAll = db.transaction(() => {
-    db.prepare('DELETE FROM tasks WHERE committee_id = ?').run(cid);
-    const ins = db.prepare('INSERT INTO tasks (committee_id, text, done, sort_order) VALUES (?, ?, ?, ?)');
-    tasks.forEach((t, i) => ins.run(cid, t.text, t.done ? 1 : 0, i));
+  const { tasks } = req.body;
+  const cid = +req.params.id;
+  db.run('DELETE FROM tasks WHERE committee_id=?', [cid]);
+  tasks.forEach((t, i) => {
+    db.run('INSERT INTO tasks (committee_id,text,done,sort_order) VALUES (?,?,?,?)', [cid, t.text, t.done ? 1 : 0, i]);
   });
-  updateAll();
+  saveDB();
   res.json({ ok: true });
 });
 
-// Change admin password
 app.put('/api/admin/password', requireAuth, (req, res) => {
   const { username, newPassword } = req.body;
-  db.prepare('UPDATE admin_users SET password = ? WHERE username = ?').run(newPassword, username);
+  runSql('UPDATE admin_users SET password=? WHERE username=?', [newPassword, username]);
   res.json({ ok: true });
 });
 
-// Serve admin page
-app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
-});
+app.get('/admin', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
-// Fallback
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`🚀 SBS Report running on http://localhost:${PORT}`);
-  console.log(`📊 Dashboard: http://localhost:${PORT}`);
-  console.log(`🔧 Admin:     http://localhost:${PORT}/admin`);
-});
+// START
+initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log('SBS Report running on http://localhost:' + PORT);
+  });
+}).catch(err => { console.error('DB init failed:', err); process.exit(1); });
